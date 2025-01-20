@@ -2,7 +2,6 @@ import { useEffect, useRef, useState} from 'react'
 import Img1 from '../assets/img1.jpg'
 import Input from '../components/Input'
 import { io } from 'socket.io-client'
-import { useNavigate } from 'react-router-dom'
 import Profile from './Profile'
 
 const Dashboard = () => {
@@ -13,18 +12,14 @@ const Dashboard = () => {
 	const [users, setUsers] = useState([])
 	const [socket, setSocket] = useState(null)
 	const messageRef = useRef(null)
-    const navigate = useNavigate();
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
+// eslint-disable-next-line
     const [callState, setCallState] = useState('idle'); 
+    // eslint-disable-next-line
   const [remoteStream, setRemoteStream] = useState(null);
   const [modalVisible, setModalVisible] = useState(false); 
   const [callerInfo, setCallerInfo] = useState(null);
   
-  
-  const handleProfileClick = () => {
-    navigate('/profile');
-  };
 
   const toggleProfileModal = () => {
     setIsProfileModalOpen(!isProfileModalOpen);
@@ -49,6 +44,7 @@ const handleCallClick = (receiver) => {
     // Set the modal visibility to show the incoming call modal
     setModalVisible(true);
 };
+// eslint-disable-next-line
 const acceptCall = () => {
     // Change the call state to ongoing when accepted
     setCallState('ongoing');
@@ -57,7 +53,7 @@ const acceptCall = () => {
     // You can also emit a socket event for the call accepted
     socket?.emit('acceptCall', { callerId: user?.id, receiverId: callerInfo?.receiverId });
 };
-
+// eslint-disable-next-line
 const rejectCall = () => {
     // Set call state to idle if rejected
     setCallState('idle');
@@ -80,7 +76,7 @@ const rejectCall = () => {
 				...prev,
 				messages: [...prev.messages, { user: data.user, message: data.message }]
 			}))
-		})
+		})// eslint-disable-next-line
 	}, [socket])
 
 	useEffect(() => {
@@ -113,7 +109,7 @@ const rejectCall = () => {
 			const resData = await res.json()
 			setUsers(resData)
 		}
-		fetchUsers()
+		fetchUsers()// eslint-disable-next-line
 	}, [])
 
 	const fetchMessages = async (conversationId, receiver) => {
@@ -135,6 +131,7 @@ const rejectCall = () => {
 			message,
 			conversationId: messages?.conversationId
 		});
+        // eslint-disable-next-line
 		const res = await fetch(`https://blackapp-pjs5.onrender.com/api/message`, {
 			method: 'POST',
 			headers: {
@@ -157,7 +154,7 @@ const rejectCall = () => {
 		<div className='w-screen flex'>
 			<div className='w-[25%] h-screen bg-secondary overflow-scroll'>
 				<div className='flex items-center my-8 mx-14'>
-					<div><img src={user?.photo} width={75} height={75} className='border border-primary p-[2px] rounded-full' /></div>
+					<div><img src={user?.photo} width={75} height={75} className='border border-primary p-[2px] rounded-full' alt="profile pic"/></div>
 					<div className='ml-8'>
 						<h3 className='text-2xl'>{user?.fullName}</h3>
 						<p className='text-lg font-light' onClick={toggleProfileModal}>My Account</p>
@@ -173,7 +170,7 @@ const rejectCall = () => {
 									return (
 										<div className='flex items-center py-8 border-b border-b-gray-300'>
 											<div className='cursor-pointer flex items-center' onClick={() => fetchMessages(conversationId, user)}>
-												<div><img src={Img1} className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary" /></div>
+												<div><img src={Img1} className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary" alt="profile pic" /></div>
 												<div className='ml-6'>
 													<h3 className='text-lg font-semibold'>{user?.fullName}</h3>
 													<p className='text-sm font-light text-gray-600'>{user?.email}</p>
@@ -190,7 +187,7 @@ const rejectCall = () => {
 				{
 					messages?.receiver?.fullName &&
 					<div className='w-[75%] bg-secondary h-[80px] my-14 rounded-full flex items-center px-14 py-2'>
-						<div className='cursor-pointer'><img src={Img1} width={60} height={60} className="rounded-full" /></div>
+						<div className='cursor-pointer'><img src={Img1} width={60} height={60} className="rounded-full" alt="profile pic"/></div>
 						<div className='ml-6 mr-auto'>
 							<h3 className='text-lg'>{messages?.receiver?.fullName}</h3>
 							<p className='text-sm font-light text-gray-600'>{messages?.receiver?.email}</p>
@@ -251,7 +248,7 @@ const rejectCall = () => {
 								return (
 									<div className='flex items-center py-8 border-b border-b-gray-300'>
 										<div className='cursor-pointer flex items-center' onClick={() => fetchMessages('new', user)}>
-											<div><img src={Img1} className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary" /></div>
+											<div><img src={Img1} className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary" alt="profile pic" /></div>
 											<div className='ml-6'>
 												<h3 className='text-lg font-semibold'>{user?.fullName}</h3>
 												<p className='text-sm font-light text-gray-600'>{user?.email}</p>
