@@ -1,0 +1,23 @@
+# Node.js dependencies
+node_modules/
+
+# Log files
+logs/
+*.log
+
+# Environment files
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Debugger
+.vscode/
+
+# IDE and editor-specific files
+.idea/
+
+# npm package-lock or yarn.lock
+package-lock.json
+yarn.lock
