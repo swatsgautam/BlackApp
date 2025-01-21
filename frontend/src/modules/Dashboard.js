@@ -3,6 +3,8 @@ import Img1 from '../assets/img1.jpg'
 import Input from '../components/Input'
 import { io } from 'socket.io-client'
 import Profile from './Profile'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const Dashboard = () => {
 	const [user, setUser] = useState(JSON.parse(localStorage.getItem('user:detail')))
@@ -19,14 +21,24 @@ const Dashboard = () => {
   const [remoteStream, setRemoteStream] = useState(null);
   const [modalVisible, setModalVisible] = useState(false); 
   const [callerInfo, setCallerInfo] = useState(null);
+  const { logout } = useAuth();
+
+  const navigate = useNavigate()
   
 
   const toggleProfileModal = () => {
     setIsProfileModalOpen(!isProfileModalOpen);
   };
-	useEffect(() => {
-		setSocket(io('https://blackapp-pjs5.onrender.com'))
-	}, [])
+
+
+  useEffect(() => {
+    const socketConnection = io('https://blackapp-pjs5.onrender.com');
+    setSocket(socketConnection);
+
+    return () => {
+        socketConnection.disconnect();
+    };
+}, []);
 
 //calling
 
@@ -150,8 +162,20 @@ const rejectCall = () => {
         setUser(userData);
       }, []);
 
+	 const handleLogout = () => {
+    logout(); // Call the logout function from context
+    navigate('/users/sign_in'); // Redirect to sign-in page after logout
+  };
+
+	  
 	return (
 		<div className='w-screen flex'>
+			<button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600"
+      >
+        Logout
+      </button>
 			<div className='w-[25%] h-screen bg-secondary overflow-scroll'>
 				<div className='flex items-center my-8 mx-14'>
 					<div><img src={user?.photo} width={75} height={75} className='border border-primary p-[2px] rounded-full' alt="profile pic"/></div>

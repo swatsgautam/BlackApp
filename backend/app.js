@@ -4,10 +4,14 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const connectMongoDB = require("./db/connection");
 const dotenv =require( "dotenv");
+const multer = require('multer');
+const path = require('path');
 dotenv.config();
 const io = require('socket.io')(8080, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: 'https://blackapp-1.onrender.com',
+        methods: ['GET', 'POST'],
+    credentials: true, 
     }
 });
 
@@ -22,10 +26,29 @@ const Messages = require('./models/Messages');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({
+    origin: 'https://blackapp-1.onrender.com', // Allow only your frontend
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+}));
 
 const port = process.env.PORT || 8000;
 connectMongoDB()
+
+// Multer setup for profile picture upload
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'upload/');  // Directory where files will be saved
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));  // File name
+    }
+});
+
+const upload = multer({ storage: storage });
+app.use('/upload', express.static('upload'));
+
+
 // Socket.io
 let users = [];
 io.on('connection', socket => {
@@ -116,73 +139,123 @@ io.on('connection', socket => {
     // io.emit('getUsers', socket.userId);
 });
 
-// Routes
-app.get('/', (req, res) => {
-    res.send('Welcome');
-})
 
-app.post('/api/register', async (req, res, next) => {
+// Middleware to verify JWT
+const verifyToken = (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1]; // Extract token from Authorization header
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Token is not valid' });
+        }
+        req.user = decoded; // Attach user data to the request object
+        next();
+    });
+};
+
+
+// Protect your route with the verifyToken middleware
+app.get('/api/auth/user', verifyToken, (req, res) => {
+    // The user data can now be accessed via req.user
+    res.json({ user: req.user });
+});
+
+
+
+
+// Routes
+
+app.post('/api/register', async (req, res) => {
     try {
         const { fullName, email, password } = req.body;
 
         if (!fullName || !email || !password) {
-            res.status(400).send('Please fill all required fields');
-        } else {
-            const isAlreadyExist = await Users.findOne({ email });
-            if (isAlreadyExist) {
-                res.status(400).send('User already exists');
-            } else {
-                const newUser = new Users({ fullName, email });
-                bcryptjs.hash(password, 10, (err, hashedPassword) => {
-                    newUser.set('password', hashedPassword);
-                    newUser.save();
-                    next();
-                })
-                return res.status(200).send('User registered successfully');
-            }
+            return res.status(400).send('Please fill all required fields');
         }
 
+        const isAlreadyExist = await Users.findOne({ email });
+        if (isAlreadyExist) {
+            return res.status(400).send('User already exists');
+        } else {
+            const newUser = new Users({ fullName, email });
+            bcryptjs.hash(password, 10, (err, hashedPassword) => {
+                if (err) {
+                    return res.status(500).send('Error hashing password');
+                }
+                newUser.set('password', hashedPassword);
+                newUser.save().then(() => {
+                    return res.status(200).send('User registered successfully');
+                });
+            });
+        }
     } catch (error) {
-        console.log(error, 'Error')
+        console.log(error, 'Error');
+        res.status(500).send('Error registering user');
     }
-})
+});
 
-app.post('/api/login', async (req, res, next) => {
+app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            res.status(400).send('Please fill all required fields');
-        } else {
-            const user = await Users.findOne({ email });
-            if (!user) {
-                res.status(400).send('User email or password is incorrect');
-            } else {
-                const validateUser = await bcryptjs.compare(password, user.password);
-                if (!validateUser) {
-                    res.status(400).send('User email or password is incorrect');
-                } else {
-                    const payload = {
-                        userId: user._id,
-                        email: user.email
-                    }
-                    const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'THIS_IS_A_JWT_SECRET_KEY';
-
-                    jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: 84600 }, async (err, token) => {
-                        await Users.updateOne({ _id: user._id }, {
-                            $set: { token }
-                        })
-                        user.save();
-                        return res.status(200).json({ user: { id: user._id, email: user.email, fullName: user.fullName }, token: token })
-                    })
-                }
-            }
+            return res.status(400).send('Please fill all required fields');
         }
 
+        const user = await Users.findOne({ email });
+        if (!user) {
+            return res.status(400).send('User email or password is incorrect');
+        }
+
+        const validateUser = await bcryptjs.compare(password, user.password);
+        if (!validateUser) {
+            return res.status(400).send('User email or password is incorrect');
+        }
+
+        const payload = { userId: user._id, email: user.email };
+        const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'THIS_IS_A_JWT_SECRET_KEY';
+
+        jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: 84600 }, async (err, token) => {
+            if (err) {
+                return res.status(500).send('Error generating JWT');
+            }
+            await Users.updateOne({ _id: user._id }, { $set: { token } });
+            return res.status(200).json({ user: { id: user._id, email: user.email, fullName: user.fullName }, token });
+        });
     } catch (error) {
-        console.log(error, 'Error')
+        console.log(error, 'Error');
+        res.status(500).send('Error logging in');
     }
-})
+});
+
+
+// Route to handle profile picture upload
+app.post('/api/upload-profile-pic', upload.single('profilePic'), async (req, res) => {
+    try {
+        const { userId } = req.body;  // Assuming userId is sent in the request body
+
+        // If file is uploaded
+        if (req.file) {
+            const fileUrl = `/upload/${req.file.filename}`;  // URL to access the image
+
+            // Update the user's profile picture in the database
+            await Users.updateOne({ _id: userId }, {
+                $set: { profilePic: fileUrl }
+            });
+
+            return res.status(200).json({ message: 'Profile picture uploaded successfully', fileUrl });
+        } else {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+    } catch (error) {
+        console.log(error, 'Error');
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 app.post('/api/conversation', async (req, res) => {
     try {
