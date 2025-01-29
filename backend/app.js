@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests only from this domain
+    origin: "https://blackapp-1.onrender.com", // Allow requests only from this domain
     methods: ["GET", "POST", "PUT", "DELETE"], // Define allowed methods
     credentials: true, // Allow cookies if needed
   })

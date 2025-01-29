@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Adjust to your front-end URL
+    origin: "https://blackapp-1.onrender.com", // Adjust to your front-end URL
     methods: ["GET", "POST"],
   },
 });

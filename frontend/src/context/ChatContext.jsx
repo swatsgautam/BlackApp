@@ -18,7 +18,7 @@ export const ChatProvider = ({ children }) => {
     try {
       setError(null); // Reset any previous errors
       const response = await axios.get(
-        "http://localhost:5000/api/rooms/users",
+        "https://blackapp-pjs5.onrender.com/api/rooms/users",
         {
           headers: {
             Authorization: `Bearer ${user.token}`, // Pass the user's token for authentication

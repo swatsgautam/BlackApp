@@ -32,13 +32,13 @@ const Message = ({ message }) => {
           // Check if it's an image and render it accordingly
           message.file.match(/\.(jpeg|jpg|gif|png)$/) ? (
             <img
-              src={`http://localhost:3000/${message.file}`}
+              src={`https://blackapp-1.onrender.com/${message.file}`}
               alt="message file"
               className="message-image"
             />
           ) : (
             <a
-              href={`http://localhost:3000/${message.file}`}
+              href={`https://blackapp-1.onrender.com/${message.file}`}
               target="_blank"
               rel="noopener noreferrer"
             >
