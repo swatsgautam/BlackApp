@@ -19,6 +19,10 @@ export const SocketContextProvider = ({ children }) => {
         query: {
           userId: authUser._id,
         },
+		transports: ["websocket", "polling"], // Ensure fallback
+		reconnection: true,
+		reconnectionAttempts: 5,
+		reconnectionDelay: 3000,
       });
 
       setSocket(socket);
