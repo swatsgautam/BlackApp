@@ -9,11 +9,26 @@ const useGetConversations = () => {
     const getConversations = async () => {
       setLoading(true);
       try {
-        const res = await fetch("https://blackapp-pjs5.onrender.com/api/users");
-        const data = await res.json();
-        if (data.error) {
-          throw new Error(data.error);
+        const token = localStorage.getItem("token"); // Get auth token
+
+        if (!token) {
+          throw new Error("Unauthorized: Please log in.");
         }
+
+        const res = await fetch("https://blackapp-pjs5.onrender.com/api/users", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Attach token
+          },
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "Failed to fetch conversations");
+        }
+
+        const data = await res.json();
         setConversations(data);
       } catch (error) {
         toast.error(error.message);
@@ -27,4 +42,5 @@ const useGetConversations = () => {
 
   return { loading, conversations };
 };
+
 export default useGetConversations;
