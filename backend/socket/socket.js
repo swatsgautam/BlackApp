@@ -1,15 +1,17 @@
 const http = require("http");
 const express = require("express");
 const { Server } = require("socket.io");
+const cors =require("cors");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "https://blackapp-1.onrender.com", // Adjust to your front-end URL
-    methods: ["GET", "POST"],
-  },
-});
+	cors: {
+	  origin: "https://blackapp-1.onrender.com",
+	  methods: ["GET", "POST"],
+	  credentials: true
+	}
+  });
 
 const userSocketMap = new Map(); // Using Map instead of object for better key-value handling
 
