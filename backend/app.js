@@ -16,7 +16,7 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: ["http://localhost:3000"],
+    origin: ["https://blackapp-1.onrender.com"],
     methods: ["GET", "POST"],
     credentials: true
 }));
