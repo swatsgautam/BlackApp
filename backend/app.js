@@ -41,13 +41,6 @@ app.use("/api/users", userRoutes);
 // app.use("/api/rooms", chatRoomRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Serve static files from the frontend/dist folder
-app.use(express.static(path.join(__dirname, "frontend", "dist")));
-
-// Serve the index.html file for all routes that don't match API routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
-});
 
 server.listen(PORT, () => {
   connectToMongoDB();
