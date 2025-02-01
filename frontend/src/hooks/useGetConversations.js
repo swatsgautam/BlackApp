@@ -21,6 +21,7 @@ const useGetConversations = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Attach token
           },
+		  credentials: "include", 
         });
 
         if (!res.ok) {
