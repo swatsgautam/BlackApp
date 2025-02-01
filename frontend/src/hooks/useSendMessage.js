@@ -16,7 +16,7 @@ const useSendMessage = () => {
 
     try {
       const res = await fetch(
-        `https://blackapp-pjs5.onrender.com/api/messages/send/${selectedConversation._id}`,
+        `/api/messages/send/${selectedConversation._id}`,
         {
           method: "POST",
           body: formData, // Send the form data with the message and file

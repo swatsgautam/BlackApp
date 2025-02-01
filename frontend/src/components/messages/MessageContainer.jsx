@@ -29,7 +29,7 @@ const MessageContainer = () => {
         <>
           {/* Header */}
           <div className="message-header flex items-center">
-            <span className="label-text">To:</span>{" "}
+            <span className="label-text"></span>{" "}
             <span className="conversation-name">
               {selectedConversation.fullName}
             </span>

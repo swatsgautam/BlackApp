@@ -4,7 +4,7 @@ import Conversation from "./Conversation";
 const Conversations = () => {
   const { loading, conversations } = useGetConversations();
   return (
-    <div className="py-2 flex flex-col overflow-auto">
+    <div className="custom-scroll">
       {conversations.map((conversation, idx) => (
         <Conversation
           key={conversation._id}
@@ -19,4 +19,5 @@ const Conversations = () => {
     </div>
   );
 };
+
 export default Conversations;

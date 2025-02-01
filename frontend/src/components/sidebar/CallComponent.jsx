@@ -24,7 +24,7 @@ const CallComponent = ({ receiverId }) => {
 
   useEffect(() => {
     if (authUser && authUser.userId) {
-      socketRef.current = io("https://blackapp-pjs5.onrender.com", {
+      socketRef.current = io("http://localhost:5000", {
         query: { userId: authUser.userId },
       });
 

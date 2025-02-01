@@ -15,7 +15,7 @@ const useGetConversations = () => {
           throw new Error("Unauthorized: Please log in.");
         }
 
-        const res = await fetch("https://blackapp-pjs5.onrender.com/api/users", {
+        const res = await fetch("/api/users", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
